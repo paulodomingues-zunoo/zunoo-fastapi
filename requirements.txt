@@ -1,6 +1,4 @@
-Cython
 fastapi[all]
 uvicorn[standard]==0.30.0
 sqlalchemy
-python
 pandas
