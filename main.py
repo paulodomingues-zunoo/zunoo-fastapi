@@ -67,12 +67,12 @@ def get_score_location(latitude: float, longitude: float):
                     -- Opcional: retornar a distância real em metros para a API
                     ST_Distance(
                         sr.geom_segmento::geography, 
-                        ST_SetSRID(ST_Point(-43.6356, -22.9327), 4674)::geography
+                        ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)::geography
                     ) as distancia_metros
                 FROM gold.score sr
                 WHERE ST_DWithin(
                     sr.geom_segmento::geography, 
-                    ST_SetSRID(ST_Point(-43.6356, -22.9327), 4674)::geography,
+                    ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)::geography,
                     400 -- Limite de 400 metros
                 )
                 ORDER BY sr.geom_segmento <-> ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)
