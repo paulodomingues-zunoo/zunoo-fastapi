@@ -3,3 +3,7 @@ psycopg2-binary
 uvicorn[standard]==0.30.0
 sqlalchemy
 pandas
+pyjwt
+pwdlib[argon2]
+python-multipart
+
