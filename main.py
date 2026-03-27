@@ -204,6 +204,41 @@ def get_score(endereco: str,
     
     
 @app.get("/get-score-location")
+def get_score_location(latitude: float, longitude: float):
+                       ### current_user: Annotated[User, Depends(get_current_active_user)],):
+    sql_query = f"""
+              SELECT 
+                    sr.id,
+                    sr.street_name,
+                    sr.score_commerce,
+                    sr.score_education,
+                    sr.score_health,
+                    sr.score_leisure,
+                    sr.score_mobility,
+                    sr.score_final,
+                    sr.geom_segmento,
+                    -- Opcional: retornar a distância real em metros para a API
+                    ST_Distance(
+                        sr.geom_segmento::geography, 
+                        ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)::geography
+                    ) as distancia_metros
+                FROM gold.score sr
+                WHERE ST_DWithin(
+                    sr.geom_segmento::geography, 
+                    ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)::geography,
+                    400 -- Limite de 400 metros
+                )
+                ORDER BY sr.geom_segmento <-> ST_SetSRID(ST_Point({longitude}, {latitude}), 4674)
+                LIMIT 1
+    """
+
+    df = lb.get_postgres_data(sql_query)
+    json_string = df.to_json(orient='records', indent=4)
+    return Response(content=json_string, media_type="application/json")
+
+
+
+@app.get("/get-score-location_v1")
 def get_score_location(latitude: float, longitude: float,
                         current_user: Annotated[User, Depends(get_current_active_user)],):
     sql_query = f"""
@@ -235,4 +270,6 @@ def get_score_location(latitude: float, longitude: float,
     df = lb.get_postgres_data(sql_query)
     json_string = df.to_json(orient='records', indent=4)
     return Response(content=json_string, media_type="application/json")
+    
+
     
