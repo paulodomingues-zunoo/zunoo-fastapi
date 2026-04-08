@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from typing import Optional
 from fastapi import FastAPI, Query, Response
 import libs_zunoo as lb
@@ -5,6 +7,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from models import Location
 import random
+
 ## SECURITY
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -15,7 +18,19 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from pydantic import BaseModel
-#from client.ClsZunooClient import ZunooClient
+
+
+# Carrega as variáveis do arquivo .env
+load_dotenv()
+
+# Substitua as constantes fixas por os.getenv
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./default.db")
+ADMIN_USER = os.getenv("ADMIN_USER")
+ADMIN_PASS = os.getenv("ADMIN_PASS")
+
+# Exemplo no Engine do SQLAlchemy
+# engine = create_engine(DATABASE_URL)
+
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -62,6 +77,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ##
 app = FastAPI(title="Zunoo API", version="0.1")
+##
+app = FastAPI(title="Zunoo API", version="0.1",
+              docs_url="/docs" if os.getenv("ENV") == "development" else None,
+              redoc_url="/redoc" if os.getenv("ENV") == "development" else None,
+              openapi_url="/openapi.json" if os.getenv("ENV") == "development" else None
+              )
 
 
 app.add_middleware(
